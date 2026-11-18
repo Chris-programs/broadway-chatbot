@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="zh-HK">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatBot聊天機械人</title>
+    <!-- 引入 Socket.io Client -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+    <style>
+      :root {
+        --bg-color: #0b141a;
+        --header-bg: #202c33;
+        --header-color: #e9edef;
+        --panel-bg: #111b21;
+        --bot-bg: #202c33;
+        --bot-color: #e9edef;
+        --user-bg: #005c4b;
+        --user-color: #e9edef;
+        --input-bg: #2a3942;
+        --text-main: #e9edef;
+        --text-sec: #8696a0;
+        --border-color: #222d34;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+          Arial, sans-serif;
+      }
+
+      body {
+        background-color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      #app-container {
+        width: 100%;
+        max-width: 500px;
+        height: 95%;
+        max-height: 800px;
+        border-radius: 20px;
+        background-color: var(--panel-bg);
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* 頂部 Header */
+      header {
+        background-color: var(--header-bg);
+        color: var(--header-color);
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+      }
+
+      .avatar {
+        width: 75px;
+        height: 75px;
+        background-color: #00a884;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 14px;
+      }
+
+      .header-info h3 {
+        font-size: 16px;
+        font-weight: 500;
+      }
+
+      .header-info small {
+        font-size: 12px;
+        color: var(--header-color);
+        opacity: 0.8;
+      }
+
+      .status-dot {
+        height: 8px;
+        width: 8px;
+        background-color: #ccc;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 4px;
+        margin-top: 15px;
+      }
+      .status-dot.online {
+        /* background-color: #25d366; */
+        background-color: #f5429e;
+      }
+
+      /* 訊息顯示區 */
+      #messages-area {
+        flex: 1;
+        padding: 16px;
+        overflow-y: auto;
+        /* background-color: var(--bg-color); */
+        /* background-image: radial-gradient(
+          rgba(255, 255, 255, 0.04) 1px,
+          transparent 0
+        ); */
+        background-color: #8696a0;
+        background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23182229' fill-opacity='0.65'%3E%3Cpath d='M50 50c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10s-10-4.477-10-10 4.477-10 10-10zM10 10c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10S0 25.523 0 20s4.477-10 10-10zm10 8c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm40 40c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        background-size: 20px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .message {
+        max-width: 80%;
+        padding: 8px 12px 6px 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        line-height: 1.2;
+        position: relative;
+        word-wrap: break-word;
+        white-space: pre-line;
+        box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.25);
+        margin-top: 4px;
+      }
+
+      /* 機器人訊息 (左邊) */
+      .message.bot {
+        align-self: flex-start;
+        background-color: var(--bot-bg);
+        color: var(--bot-color);
+        border-top-left-radius: 0;
+      }
+      .message.bot::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -8px;
+        width: 0;
+        height: 0;
+        border: 8px solid transparent;
+        border-right-color: var(--bot-bg);
+        border-top: 0;
+      }
+
+      /* 用戶訊息 (右邊) */
+      .message.user {
+        align-self: flex-end;
+        background-color: var(--user-bg);
+        color: var(--user-color);
+        border-top-right-radius: 0;
+      }
+      .message.user::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: -8px;
+        width: 0;
+        height: 0;
+        border: 8px solid transparent;
+        border-left-color: var(--user-bg);
+        border-top: 0;
+      }
+
+      /* 訊息內文 */
+      .msg-text {
+        word-break: break-word;
+        margin-bottom: 2px;
+        line-height: 1.8;
+      }
+
+      /* 時間與狀態勾勾在左下方 */
+      .msg-meta {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 6px;
+        margin-top: 4px;
+      }
+
+      .time {
+        font-size: 11px;
+        color: var(--text-sec);
+      }
+
+      .status-ticks {
+        font-size: 13px;
+        letter-spacing: -3px;
+        color: #53bdeb; /* 藍色雙勾 */
+        font-weight: bold;
+      }
+      .status-ticks.sent,
+      .status-ticks.delivered {
+        color: var(--text-sec);
+      }
+
+      /* 打字中特效 */
+      .typing-indicator {
+        display: flex;
+        gap: 4px;
+        padding: 6px 10px;
+        align-items: center;
+      }
+      .typing-dot {
+        width: 6px;
+        height: 6px;
+        background-color: var(--text-sec);
+        border-radius: 50%;
+        animation: bounce 1.4s infinite ease-in-out both;
+      }
+      .typing-dot:nth-child(1) {
+        animation-delay: -0.32s;
+      }
+      .typing-dot:nth-child(2) {
+        animation-delay: -0.16s;
+      }
+      @keyframes bounce {
+        0%,
+        80%,
+        100% {
+          transform: scale(0);
+        }
+        40% {
+          transform: scale(1);
+        }
+      }
+
+      /* 底部輸入區 */
+      #input-area {
+        padding: 10px 16px;
+        background-color: var(--panel-bg);
+        display: flex;
+        gap: 10px;
+        border-top: 1px solid var(--border-color);
+        align-items: center;
+      }
+
+      input[type='text'] {
+        flex: 1;
+        padding: 10px 16px;
+        border-radius: 24px;
+        border: none;
+        background-color: var(--bot-bg);
+        color: var(--text-main);
+        outline: none;
+        font-size: 15px;
+      }
+
+      .action-btn {
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        padding: 6px;
+        color: var(--text-sec);
+        border-radius: 50%;
+      }
+      .action-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      #send-btn {
+        background-color: #00a884;
+        color: white;
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+      }
+      #send-btn:disabled {
+        background-color: var(--text-sec);
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      #send-btn:hover {
+        background-color: #53bdeb;
+      }
+
+      /* 地圖彈窗 */
+      #map-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+      }
+      #map-container {
+        width: 90%;
+        max-width: 450px;
+        height: 60vh;
+        background: var(--bot-bg);
+        border-radius: 12px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      #map-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 15px;
+        color: var(--text-main);
+      }
+      #map {
+        flex: 1;
+      }
+      #map-footer {
+        padding: 10px 16px;
+        font-size: 13px;
+        color: var(--text-sec);
+        background: var(--panel-bg);
+      }
+      #close-map-btn {
+        border: none;
+        background: none;
+        font-size: 18px;
+        cursor: pointer;
+        color: var(--text-sec);
+      }
+    </style>
+
+    <!-- Leaflet 地圖 CSS / JS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+  </head>
+  <body>
+    <div id="app-container">
+      <header>
+        <div class="header-left">
+          <div class="avatar">Broadway</div>
+          <div class="header-info">
+            <h3 id="bot-name">ChatBot聊天機械人🤖</h3>
+            <small
+              ><span id="status-indicator" class="status-dot"></span
+              ><span id="connection-status">連線中...</span></small
+            >
+          </div>
+        </div>
+      </header>
+
+      <div id="messages-area">
+        <div class="message bot">
+          <div class="msg-text">
+            您好! 我是Broadway的Chatbot聊天機械人🤖,
+            請輸入以下指令用作查詢有關資料🔍
+          </div>
+          <div class="msg-meta">
+            <span class="time">System</span>
+          </div>
+        </div>
+      </div>
+
+      <form id="input-area">
+        <button
+          type="button"
+          class="action-btn"
+          id="share-gps-btn"
+          title="分享即時位置"
+        >
+          📍
+        </button>
+        <button
+          type="button"
+          class="action-btn"
+          id="pick-map-btn"
+          title="在地圖選擇位置"
+        >
+          🗺️
+        </button>
+        <input
+          type="text"
+          id="msg-input"
+          placeholder="輸入訊息..."
+          autocomplete="off"
+        />
+        <button type="submit" id="send-btn" disabled>➤</button>
+      </form>
+    </div>
+
+    <!-- 地圖選點彈窗 -->
+    <div id="map-modal">
+      <div id="map-container">
+        <div id="map-header">
+          <span>在地圖揀一個位置</span>
+          <button id="close-map-btn">✕</button>
+        </div>
+        <div id="map"></div>
+        <div id="map-footer">點擊地圖任意位置即可分享座標。</div>
+      </div>
+    </div>
+
+    <script>
+      const socket = io('http://localhost:3000');
+
+      const statusText = document.getElementById('connection-status');
+      const statusDot = document.getElementById('status-indicator');
+      const sendBtn = document.getElementById('send-btn');
+      const msgInput = document.getElementById('msg-input');
+      const messagesArea = document.getElementById('messages-area');
+      const form = document.getElementById('input-area');
+
+      const shareGpsBtn = document.getElementById('share-gps-btn');
+      const pickMapBtn = document.getElementById('pick-map-btn');
+      const mapModal = document.getElementById('map-modal');
+      const closeMapBtn = document.getElementById('close-map-btn');
+
+      let mapInstance = null;
+      let mapClickHandler = null;
+
+      socket.on('connect', () => {
+        statusText.innerText = '線上';
+        statusDot.classList.add('online');
+        sendBtn.disabled = false;
+      });
+
+      socket.on('disconnect', () => {
+        statusText.innerText = '已斷線 (請檢查 Server)';
+        statusDot.classList.remove('online');
+        sendBtn.disabled = true;
+      });
+
+      socket.on('bot_message', (data) => {
+        const text = typeof data === 'object' ? data.text : data;
+        showTypingIndicator();
+        setTimeout(() => {
+          removeTypingIndicator();
+          appendMessage(text, 'bot');
+        }, 800);
+      });
+
+      function showTypingIndicator() {
+        if (document.getElementById('typing-bubble')) return;
+        const div = document.createElement('div');
+        div.classList.add('message', 'bot');
+        div.id = 'typing-bubble';
+        div.innerHTML = `
+          <div class="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        `;
+        messagesArea.appendChild(div);
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+      }
+
+      function removeTypingIndicator() {
+        const bubble = document.getElementById('typing-bubble');
+        if (bubble) bubble.remove();
+      }
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = msgInput.value.trim();
+        if (!text) return;
+        sendMessageToServer(text);
+        msgInput.value = '';
+      });
+
+      function sendMessageToServer(text) {
+        const msgId = 'msg-' + Date.now();
+        appendMessage(text, 'user', msgId);
+
+        socket.emit('user_message', {
+          text: text,
+          chat: { id: socket.id },
+          from: {
+            id: socket.id,
+            first_name: 'Student',
+            is_bot: false,
+          },
+        });
+
+        setTimeout(() => updateMsgStatus(msgId, 'delivered'), 500);
+        setTimeout(() => updateMsgStatus(msgId, 'read'), 1200);
+      }
+
+      shareGpsBtn.addEventListener('click', () => {
+        if (!navigator.geolocation) {
+          appendMessage('此瀏覽器不支援定位功能。', 'bot');
+          return;
+        }
+        shareGpsBtn.disabled = true;
+        shareGpsBtn.textContent = '⏳';
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            const text = `📍 分享即時位置：(${lat.toFixed(5)}, ${lng.toFixed(5)})`;
+            sendMessageToServer(text);
+            shareGpsBtn.disabled = false;
+            shareGpsBtn.textContent = '📍';
+          },
+          (err) => {
+            console.error(err);
+            appendMessage(
+              '無法取得定位，請確認已允許瀏覽器使用定位功能。',
+              'bot',
+            );
+            shareGpsBtn.disabled = false;
+            shareGpsBtn.textContent = '📍';
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+        );
+      });
+
+      pickMapBtn.addEventListener('click', () => {
+        mapModal.style.display = 'flex';
+        if (!mapInstance) {
+          mapInstance = L.map('map').setView([22.302711, 114.177216], 12);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors',
+          }).addTo(mapInstance);
+        }
+        if (mapClickHandler) {
+          mapInstance.off('click', mapClickHandler);
+        }
+        mapClickHandler = function (e) {
+          const lat = e.latlng.lat;
+          const lng = e.latlng.lng;
+          const text = `📍 分享地圖選擇位置：(${lat.toFixed(5)}, ${lng.toFixed(5)})`;
+          sendMessageToServer(text);
+          mapModal.style.display = 'none';
+        };
+        mapInstance.on('click', mapClickHandler);
+        setTimeout(() => {
+          mapInstance.invalidateSize();
+        }, 100);
+      });
+
+      closeMapBtn.addEventListener('click', () => {
+        mapModal.style.display = 'none';
+      });
+      mapModal.addEventListener('click', (e) => {
+        if (e.target === mapModal) mapModal.style.display = 'none';
+      });
+
+      function appendMessage(text, sender, id = '') {
+        const div = document.createElement('div');
+        div.classList.add('message', sender);
+        if (id) div.id = id;
+
+        const time = new Date().toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+
+        let ticksHTML = '';
+        if (sender === 'user') {
+          ticksHTML = `<span class="status-ticks sent" id="tick-${id}">✓</span>`;
+        }
+
+        div.innerHTML = `
+          <div class="msg-text">${escapeHtml(text)}</div>
+          <div class="msg-meta">
+            <span class="time">${time}</span>
+            ${ticksHTML}
+          </div>
+        `;
+
+        messagesArea.appendChild(div);
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+      }
+
+      function updateMsgStatus(id, status) {
+        const tickEl = document.getElementById(`tick-${id}`);
+        if (!tickEl) return;
+
+        if (status === 'delivered') {
+          tickEl.textContent = '✓✓';
+          tickEl.className = 'status-ticks delivered';
+        } else if (status === 'read') {
+          tickEl.textContent = '✓✓';
+          tickEl.className = 'status-ticks'; // 藍色雙勾
+        }
+      }
+
+      function escapeHtml(text) {
+        if (!text) return text;
+        return text
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+    </script>
+  </body>
+</html>
