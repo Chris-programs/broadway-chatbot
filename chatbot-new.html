@@ -42,7 +42,7 @@
 
       #app-container {
         width: 100%;
-        max-width: 500px;
+        max-width: 580px;
         height: 95%;
         max-height: 800px;
         border-radius: 20px;
@@ -69,12 +69,13 @@
       .header-left {
         display: flex;
         align-items: center;
-        gap: 30px;
+        text-align: center;
+        gap: 20px;
       }
 
       .avatar {
-        width: 75px;
-        height: 75px;
+        width: 80px;
+        height: 80px;
         background-color: #00a884;
         border-radius: 50%;
         display: flex;
@@ -83,6 +84,7 @@
         color: white;
         font-weight: bold;
         font-size: 14px;
+        margin-left: 5px;
       }
 
       .header-info h3 {
@@ -129,7 +131,7 @@
       }
 
       .message {
-        max-width: 80%;
+        max-width: 88%;
         padding: 8px 12px 6px 12px;
         border-radius: 8px;
         font-size: 14px;
@@ -362,7 +364,7 @@
     <div id="app-container">
       <header>
         <div class="header-left">
-          <div class="avatar">Broadway</div>
+          <div class="avatar">百老匯 Broadway</div>
           <div class="header-info">
             <h3 id="bot-name">ChatBot聊天機械人🤖</h3>
             <small
@@ -377,7 +379,11 @@
         <div class="message bot">
           <div class="msg-text">
             您好! 我是Broadway的Chatbot聊天機械人🤖,
-            請輸入以下指令用作查詢有關資料🔍
+            請輸入以下指令用作查詢有關資料🔍<br />
+            📺請輸入: /product <產品名稱關鍵字><r> 
+            💰請輸入: /product <產品名稱關鍵字>/<最低價格>/<最高價格> 
+            分享當前位置到ChatBot 請按:📍<r>
+            ❔請輸入: /question &lt;Q&amp;A 關鍵字&gt;
           </div>
           <div class="msg-meta">
             <span class="time">System</span>

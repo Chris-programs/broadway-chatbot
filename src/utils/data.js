@@ -15,10 +15,10 @@ const getJSON = async (url) => {
 
 const printQuestion = (items, bot, fromId, resp) => {
   items.data.forEach((item) => {
-    resp += `🟡 問: ${item.question_cn}\n\r`;
+    resp += `🟡 問: ${item.question_cn}\n`;
     resp += `🟢 答: ${item.answer_cn}\n`;
-    resp += '_________________________________________\n\r';
-    resp += `🟡 Q: ${item.question_en}\n\r`;
+    resp += '🔸🔸🔸🔸🔸🔸🔸🔸🔸🔸🔸🔸🔸🔸🔸🔸🔸🔸🔸🔸\n';
+    resp += `🟡 Q: ${item.question_en}\n`;
     resp += `🟢 A: ${item.answer_en}`;
     // console.log(resp);
     bot.sendMessage(fromId, resp);

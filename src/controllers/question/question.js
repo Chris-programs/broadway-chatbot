@@ -1,14 +1,14 @@
-import { readJSONfile, writeJSONfile } from '../../utils/data.js';
+// import { readJSONfile, writeJSONfile } from '../utils/data.js';
+import { Question } from '../../../models/questionSchema.js';
 
 // Get all questions and answer - http:/localhost:8080/question/
 export const getAllQuestions = async (req, res) => {
   try {
-    const readFile = await readJSONfile('./json/questions.json');
-    const questions = JSON.parse(readFile);
+    const readAllData = await Question.find();
 
     res.status(200).json({
       success: true,
-      data: questions,
+      data: readAllData,
     });
   } catch (error) {
     res.status(500).json({
@@ -21,46 +21,53 @@ export const getAllQuestions = async (req, res) => {
 // Add a new question and answer - http:/localhost:8080/question/addQuestion
 export const addQuestion = async (req, res) => {
   try {
-    const readFile = await readJSONfile('./json/questions.json');
-    const questions = JSON.parse(readFile);
-
     const { question_cn, answer_cn, question_en, answer_en } = req.body;
 
+    if (!question_cn || !answer_cn || !question_en || !answer_en) {
+      return res.status(400).json({
+        success: false,
+        message: 'Question and answer are required.',
+      });
+    }
+
+    const existingQuestion = await Question.findOne({
+      question_cn,
+      answer_cn,
+      question_en,
+      answer_en,
+    });
+
+    if (existingQuestion) {
+      return res.status(200).json({
+        success: false,
+        message: 'Matching question and answer already exist in MongoDB.',
+      });
+    }
+
+    const readAllData = await Question.find({}, { id: 1 });
     const lastId =
-      questions.length > 0
-        ? Math.max(...questions.map((q) => Number(q.id)))
+      readAllData.length > 0
+        ? Math.max(...readAllData.map((q) => Number(q.id) || 0))
         : 0;
 
-    const newQuestion = {
+    const newQuestion = await Question.create({
       id: lastId + 1,
       question_cn,
       answer_cn,
       question_en,
       answer_en,
-    };
+    });
 
-    if (
-      !newQuestion.question_cn ||
-      !newQuestion.answer_cn ||
-      !newQuestion.question_en ||
-      !newQuestion.answer_en
-    ) {
-      return res.status(404).json({
-        success: false,
-        message: 'keyword not found.',
-      });
-    }
-    questions.push(newQuestion);
-    await writeJSONfile('./json/questions.json', JSON.stringify(questions));
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Question and answer are added successfully!',
       data: newQuestion,
     });
   } catch (error) {
-    res.status(500).json({
+    console.error('addQuestion error:', error);
+    return res.status(500).json({
       success: false,
-      message: error.message,
+      message: 'Failed to add question.',
     });
   }
 };
@@ -68,39 +75,34 @@ export const addQuestion = async (req, res) => {
 // Get the question by keyword - http:/localhost:8080/question/:keyword
 export const getQuestion = async (req, res) => {
   try {
-    const readFile = await readJSONfile('./json/questions.json');
-    const questions = JSON.parse(readFile);
+    const keyword = req.params.keyword.trim();
 
-    const { keyword } = req.params;
-
-    const matchKeyword = questions.find(
-      (match) =>
-        match.question_cn.includes(keyword.trim()) ||
-        match.question_en.includes(keyword.trim().toLowerCase()) ||
-        match.answer_cn.includes(keyword.trim()) ||
-        match.answer_en.includes(keyword.trim().toLowerCase()),
-    );
-
-    // console.log(Boolean(matchKeyword));
-
-    if (!matchKeyword) {
+    if (!keyword) {
       return res.status(400).json({
         success: false,
         message: 'Keyword is required.',
       });
     }
 
-    const filteredQuestions = questions.filter(
-      (q) =>
-        q.question_en.toLowerCase().includes(keyword.toLowerCase()) ||
-        q.question_cn.includes(keyword) ||
-        q.answer_en.toLowerCase().includes(keyword.toLowerCase()) ||
-        q.answer_cn.includes(keyword),
-    );
+    const searchResult = await Question.find({
+      $or: [
+        { question_cn: { $regex: keyword, $options: 'i' } },
+        { question_en: { $regex: keyword, $options: 'i' } },
+        { answer_cn: { $regex: keyword, $options: 'i' } },
+        { answer_en: { $regex: keyword, $options: 'i' } },
+      ],
+    });
 
-    res.status(200).json({
+    if (searchResult.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No question found matching the keyword',
+      });
+    }
+
+    return res.status(200).json({
       success: true,
-      data: filteredQuestions,
+      data: searchResult,
     });
   } catch (error) {
     res.status(500).json({
