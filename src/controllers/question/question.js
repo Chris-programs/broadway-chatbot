@@ -115,25 +115,26 @@ export const getQuestion = async (req, res) => {
 // Edit question and answer by id - http:/localhost:8080/question/edit/:id
 export const editQuestion = async (req, res) => {
   try {
-    const readFile = await readJSONfile('./json/questions.json');
-    const questions = JSON.parse(readFile);
+    const { id } = req.params;
+    const { question_cn, answer_cn, question_en, answer_en } = req.body;
 
-    const questionIdx = questions.findIndex((q) => q.id == req.params.id);
-
-    const updatedQuestion = req.body;
-
-    if (questionIdx == -1) {
+    const updateQuestion = await Question.findById(id);
+    if (!updateQuestion) {
       return res.status(404).json({
         success: false,
         message: 'Question not found',
       });
     }
-    questions[questionIdx] = updatedQuestion;
-    await writeJSONfile('./json/questions.json', JSON.stringify(questions));
+    updateQuestion.question_cn = question_cn || updateQuestion.question_cn;
+    updateQuestion.answer_cn = answer_cn || updateQuestion.answer_cn;
+    updateQuestion.question_en = question_en || updateQuestion.question_en;
+    updateQuestion.answer_en = answer_en || updateQuestion.answer_en;
+
+    await updateQuestion.save();
     res.status(201).json({
       success: true,
       message: 'Edited question successfully!',
-      data: updatedQuestion,
+      data: updateQuestion,
     });
   } catch (error) {
     res.status(500).json({
@@ -146,23 +147,19 @@ export const editQuestion = async (req, res) => {
 // Delete question and answer by id - http:/localhost:8080/question/delete/:id
 export const deleteQuestion = async (req, res) => {
   try {
-    const readFile = await readJSONfile('./json/questions.json');
-    const questions = JSON.parse(readFile);
+    const { id } = req.params;
+    const deleteQuestion = await Question.findByIdAndDelete(id);
 
-    const questionIdx = questions.findIndex((q) => q.id == req.params.id);
-
-    if (questionIdx == -1) {
+    if (!deleteQuestion) {
       return res.status(404).json({
         success: false,
-        message: 'Question not found',
+        message: 'Product not found',
       });
     }
-    questions.splice(questionIdx, 1);
-    await writeJSONfile('./json/questions.json', JSON.stringify(questions));
+
     res.status(200).json({
       success: true,
-      message: 'Deleted question successfully!',
-      data: questions,
+      message: 'Product deleted successfully',
     });
   } catch (error) {
     res.status(500).json({
