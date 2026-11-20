@@ -1,8 +1,10 @@
-// import { readJSONfile, writeJSONfile } from '../utils/data.js';
-import { Question } from '../../../models/questionSchema.js';
+import express from 'express';
+import { Question } from '../../models/questionSchema.js';
+
+const router = express.Router();
 
 // Get all questions and answer - http:/localhost:8080/question/
-export const getAllQuestions = async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const readAllData = await Question.find();
 
@@ -16,10 +18,10 @@ export const getAllQuestions = async (req, res) => {
       message: error.message,
     });
   }
-};
+});
 
-// Add a new question and answer - http:/localhost:8080/question/addQuestion
-export const addQuestion = async (req, res) => {
+// Add a new question and answer - http:/localhost:8080/question/add
+router.post('/add', async (req, res) => {
   try {
     const { question_cn, answer_cn, question_en, answer_en } = req.body;
 
@@ -70,10 +72,10 @@ export const addQuestion = async (req, res) => {
       message: 'Failed to add question.',
     });
   }
-};
+});
 
 // Get the question by keyword - http:/localhost:8080/question/:keyword
-export const getQuestion = async (req, res) => {
+router.get('/:keyword', async (req, res) => {
   try {
     const keyword = req.params.keyword.trim();
 
@@ -110,10 +112,10 @@ export const getQuestion = async (req, res) => {
       message: error.message,
     });
   }
-};
+});
 
 // Edit question and answer by id - http:/localhost:8080/question/edit/:id
-export const editQuestion = async (req, res) => {
+router.put('/edit/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { question_cn, answer_cn, question_en, answer_en } = req.body;
@@ -142,10 +144,10 @@ export const editQuestion = async (req, res) => {
       message: error.message,
     });
   }
-};
+});
 
 // Delete question and answer by id - http:/localhost:8080/question/delete/:id
-export const deleteQuestion = async (req, res) => {
+router.delete('/delete/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const deleteQuestion = await Question.findByIdAndDelete(id);
@@ -167,4 +169,6 @@ export const deleteQuestion = async (req, res) => {
       message: error.message,
     });
   }
-};
+});
+
+export default router;

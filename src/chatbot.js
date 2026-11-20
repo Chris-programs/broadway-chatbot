@@ -1,13 +1,14 @@
 import { bot } from '../socketio.js';
 import { getJSON, printQuestion } from './utils/data.js';
 
+// Search question by keyword
 bot.onText(/\/question (.+)/, async function (msg, match) {
   const fromId = msg.from.id;
 
   try {
     let resp = '';
     let query = match[1].trim() || match[1].toLowerCase().trim();
-    let response = await getJSON(`http://localhost:8080/question/${query}`);
+    let response = await getJSON(`http://localhost:5000/question/${query}`);
 
     printQuestion(response.data, bot, fromId, resp);
   } catch (error) {

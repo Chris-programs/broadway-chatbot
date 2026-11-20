@@ -103,5 +103,19 @@
     "question_en": "What makes this model different from similar products?",
     "answer_cn": "此型號在功能、效能與能源效率方面均有所提升，並提供更完善的使用體驗。",
     "answer_en": "This model offers improved performance, better energy efficiency, enhanced features, and a more user-friendly experience compared to similar products."
+  },
+  {
+    "id": 16,
+    "question_cn": "請問下單後多久可以收到商品？",
+    "question_en": "How long does shipping take after placing an order?",
+    "answer_cn": "一般現貨商品在確認付款後 1 至 2 個工作天內出貨，配送時間約需 2 至 3 個工作天。",
+    "answer_en": "In-stock orders are typically dispatched within 1 to 2 business days after payment confirmation, with standard delivery taking 2 to 3 business days."
+  },
+  {
+    "id": 17,
+    "question_cn": "如果收到商品後發現尺寸不合，可以退換貨嗎？",
+    "question_en": "Can I return or exchange an item if the size doesn't fit?",
+    "answer_cn": "可以，請在收到商品後 7 天內保持商品全新、吊牌未剪及包裝完整，並聯繫客服辦理退換貨。",
+    "answer_en": "Yes, you may request a return or exchange within 7 days of delivery, provided the item is unused with original tags and packaging intact."
   }
 ]
