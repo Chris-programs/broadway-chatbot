@@ -2,6 +2,12 @@ import mongoose from 'mongoose';
 
 const questionSchema = new mongoose.Schema(
   {
+    keyword: {
+      type: String,
+      required: true,
+    },
+  },
+  {
     id: {
       type: Number,
       required: true,

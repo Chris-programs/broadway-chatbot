@@ -6,11 +6,18 @@ const router = express.Router();
 // Get all questions and answer - http:/localhost:8080/question/
 router.get('/', async (req, res) => {
   try {
-    const readAllData = await Question.find();
+    const dataList = await Question.find();
+
+    if (dataList.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No question is found',
+      });
+    }
 
     res.status(200).json({
       success: true,
-      data: readAllData,
+      data: dataList,
     });
   } catch (error) {
     res.status(500).json({
@@ -46,13 +53,14 @@ router.post('/add', async (req, res) => {
       });
     }
 
-    const readAllData = await Question.find({}, { id: 1 });
+    const dataList = await Question.find({}, { id: 1 });
+
     const lastId =
-      readAllData.length > 0
-        ? Math.max(...readAllData.map((q) => Number(q.id) || 0))
+      dataList.length > 0
+        ? Math.max(...dataList.map((q) => Number(q.id) || 0))
         : 0;
 
-    const newQuestion = await Question.create({
+    const newQuestion = new Question({
       id: lastId + 1,
       question_cn,
       answer_cn,
@@ -60,16 +68,17 @@ router.post('/add', async (req, res) => {
       answer_en,
     });
 
-    return res.status(201).json({
+    await newQuestion.save();
+
+    res.status(201).json({
       success: true,
       message: 'Question and answer are added successfully!',
       data: newQuestion,
     });
   } catch (error) {
-    console.error('addQuestion error:', error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to add question.',
+      message: error.message,
     });
   }
 });
@@ -80,7 +89,7 @@ router.get('/:keyword', async (req, res) => {
     const keyword = req.params.keyword.trim();
 
     if (!keyword) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
         message: 'Keyword is required.',
       });
@@ -102,7 +111,7 @@ router.get('/:keyword', async (req, res) => {
       });
     }
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       data: searchResult,
     });
@@ -120,19 +129,18 @@ router.put('/edit/:id', async (req, res) => {
     const { id } = req.params;
     const { question_cn, answer_cn, question_en, answer_en } = req.body;
 
-    const updateQuestion = await Question.findById(id);
+    const updateQuestion = await Question.findByIdAndUpdate(
+      id,
+      { question_cn, answer_cn, question_en, answer_en },
+      { new: true, upsert: false },
+    );
     if (!updateQuestion) {
       return res.status(404).json({
         success: false,
         message: 'Question not found',
       });
     }
-    updateQuestion.question_cn = question_cn || updateQuestion.question_cn;
-    updateQuestion.answer_cn = answer_cn || updateQuestion.answer_cn;
-    updateQuestion.question_en = question_en || updateQuestion.question_en;
-    updateQuestion.answer_en = answer_en || updateQuestion.answer_en;
 
-    await updateQuestion.save();
     res.status(201).json({
       success: true,
       message: 'Edited question successfully!',
@@ -155,13 +163,13 @@ router.delete('/delete/:id', async (req, res) => {
     if (!deleteQuestion) {
       return res.status(404).json({
         success: false,
-        message: 'Product not found',
+        message: 'Question not found',
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Product deleted successfully',
+      message: 'Question deleted successfully',
     });
   } catch (error) {
     res.status(500).json({

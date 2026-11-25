@@ -3,7 +3,7 @@ import questionRoute from './routes/question.js';
 import mongoose from 'mongoose';
 
 const app = express();
-const PORT = 5000;
+const PORT = 8080;
 app.use(express.json());
 
 app.use('/question', questionRoute);

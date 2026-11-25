@@ -8,7 +8,7 @@ bot.onText(/\/question (.+)/, async function (msg, match) {
   try {
     let resp = '';
     let query = match[1].trim() || match[1].toLowerCase().trim();
-    let response = await getJSON(`http://localhost:5000/question/${query}`);
+    let response = await getJSON(`http://localhost:8080/question/${query}`);
 
     printQuestion(response.data, bot, fromId, resp);
   } catch (error) {
