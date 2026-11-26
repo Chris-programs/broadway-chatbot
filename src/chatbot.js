@@ -12,12 +12,7 @@ bot.onText(/\/question (.+)/, async function (msg, match) {
 
     printQuestion(response.data, bot, fromId, resp);
   } catch (error) {
-    console.log('Error', error.response?.data || error.message);
-
-    if (
-      error.response &&
-      (error.response.status === 400 || error.response.status === 404)
-    ) {
+    if (error.response.status === 404) {
       bot.sendMessage(fromId, '找不到關鍵字⚠️\n\r Keyword not found.⚠️');
     } else {
       bot.sendMessage(

@@ -1,6 +1,7 @@
 import express from 'express';
 import questionRoute from './routes/question.js';
 import mongoose from 'mongoose';
+import 'dotenv/config';
 
 const app = express();
 const PORT = 8080;
@@ -10,7 +11,7 @@ app.use('/question', questionRoute);
 
 const connectDB = async () => {
   try {
-    await mongoose.connect('mongodb://localhost:27017/chatbot-project');
+    await mongoose.connect(process.env.MONGODB_URL);
     console.log('Connected to MongoDB');
   } catch (error) {
     console.error('Error connecting to MongoDB:', error);

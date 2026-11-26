@@ -88,13 +88,6 @@ router.get('/:keyword', async (req, res) => {
   try {
     const keyword = req.params.keyword.trim();
 
-    if (!keyword) {
-      return res.status(404).json({
-        success: false,
-        message: 'Keyword is required.',
-      });
-    }
-
     const searchResult = await Question.find({
       $or: [
         { question_cn: { $regex: keyword, $options: 'i' } },
@@ -132,7 +125,10 @@ router.put('/edit/:id', async (req, res) => {
     const updateQuestion = await Question.findByIdAndUpdate(
       id,
       { question_cn, answer_cn, question_en, answer_en },
-      { new: true, upsert: false },
+      {
+        new: true,
+        runValidators: true,
+      },
     );
     if (!updateQuestion) {
       return res.status(404).json({
@@ -170,6 +166,7 @@ router.delete('/delete/:id', async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'Question deleted successfully',
+      data: deleteQuestion,
     });
   } catch (error) {
     res.status(500).json({
