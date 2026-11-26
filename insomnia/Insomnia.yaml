@@ -1,0 +1,264 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: Scratch Pad
+meta:
+  id: wrk_scratchpad
+  created: 1793863669323
+  modified: 1793863669323
+  description: ""
+collection:
+  - name: employee-db
+    meta:
+      id: fld_e754517c868a46e698de9e15d0fdd9c3
+      created: 1793871333943
+      modified: 1793871333943
+      sortKey: -1793871333943
+      description: ""
+  - name: middleware-project
+    meta:
+      id: fld_4ec8af188f584298a42b475a97001072
+      created: 1794195348450
+      modified: 1794195348450
+      sortKey: -1794195348450
+      description: ""
+  - name: chatbot
+    meta:
+      id: fld_32fd74d6e92d44ff9ed8e44dab8626e2
+      created: 1794284978619
+      modified: 1794284978619
+      sortKey: -1794284978619
+      description: ""
+  - name: helloworld
+    meta:
+      id: fld_76488fde39fd4d82ba18548180519113
+      created: 1794361374765
+      modified: 1794361374765
+      sortKey: -1794361374765
+      description: ""
+  - name: phonebook
+    meta:
+      id: fld_a65bda6c1773485188d284e7aea1aa59
+      created: 1794365716963
+      modified: 1794365716963
+      sortKey: -1794365716963
+      description: ""
+  - name: Exception filters
+    meta:
+      id: fld_60610ad2362f4c5a9308d2d86748cdb5
+      created: 1794450123935
+      modified: 1794450123935
+      sortKey: -1794450123935
+      description: ""
+  - name: questions
+    meta:
+      id: fld_9bd8eecfcbcd42fcb5316a857aeaf335
+      created: 1794450514251
+      modified: 1795680516207
+      sortKey: -1794450514251
+      description: ""
+    children:
+      - url: http://localhost:8080/question/
+        name: Get all questions
+        meta:
+          id: req_4b2a17a3d1c24174a1e3812a9d8621ae
+          created: 1794450384078
+          modified: 1795674168362
+          isPrivate: false
+          description: ""
+          sortKey: -1794453061831
+        method: GET
+        body:
+          mimeType: application/json
+          text: ""
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/question/保養
+        name: Get a question by keyword
+        meta:
+          id: req_e5f4746d3343491aac49e5f0b50523e5
+          created: 1794453053867
+          modified: 1795676418668
+          isPrivate: false
+          description: ""
+          sortKey: -1794453061731
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/question/add
+        name: Add a new question
+        meta:
+          id: req_2afae30b65864adfb50d2994d4aed3ce
+          created: 1794453197157
+          modified: 1795592626366
+          isPrivate: false
+          description: ""
+          sortKey: -1794453061631
+        method: POST
+        body:
+          mimeType: application/json
+          text: "{
+
+            \    \"question_cn\": \"如果收到商品後發現尺寸不合，可以退換貨嗎？(NEW)\",
+
+            \    \"question_en\": \"Can I return or exchange an item if the size
+            doesn't fit? (NEW)\",
+
+            \    \"answer_cn\": \"可以，請在收到商品後 7 天內保持商品全新、吊牌未剪及包裝完整，並聯繫客服辦理退換貨。\",
+
+            \    \"answer_en\": \"Yes, you may request a return or exchange
+            within 7 days of delivery, provided the item is unused with original
+            tags and packaging intact.\",
+
+            \t\"new_topic\": \"are you ok?\"
+
+            \  }
+
+            \  "
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/question/edit/6b068c64cf343dca73e43afb
+        name: Edit a question by id
+        meta:
+          id: req_de755586924a40a2b9caee40f507cd08
+          created: 1794453492081
+          modified: 1795674282221
+          isPrivate: false
+          description: ""
+          sortKey: -1794453061531
+        method: PUT
+        body:
+          mimeType: application/json
+          text: >-
+            {
+            			"question_cn": "如果收到商品後發現尺寸不合，可以退換貨嗎? (4th modified)",
+            			"question_en": "Can I return or exchange an item if the size doesn't fit? (4th modified)"
+            		}
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/question/delete/6b0691b843fd0b8330ad80e5
+        name: Delete a question by id
+        meta:
+          id: req_538ffe60091c4084bb4e32b02994d322
+          created: 1794453737446
+          modified: 1795674428552
+          isPrivate: false
+          description: ""
+          sortKey: -1794453061431
+        method: DELETE
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Pipe
+    meta:
+      id: fld_fc9773bf4ef5434e96251505ef559586
+      created: 1794880863903
+      modified: 1794880863903
+      sortKey: -1794880863903
+      description: ""
+  - name: Functional Middleware
+    meta:
+      id: fld_806af8a6bb3e43a5897bbabf5ecc73b9
+      created: 1794881059133
+      modified: 1794881059133
+      sortKey: -1794881059133
+      description: ""
+  - name: Class Middleware
+    meta:
+      id: fld_1fda7f4d15e446bfb9fe9fe2fba24589
+      created: 1794885540044
+      modified: 1794885540044
+      sortKey: -1794885540044
+      description: ""
+  - name: Guard
+    meta:
+      id: fld_8b49d71bb08b4446bfa18af38ca4db9f
+      created: 1794888652238
+      modified: 1794888652238
+      sortKey: -1794888652238
+      description: ""
+  - name: User Management System
+    meta:
+      id: fld_d94220f4ab7542faa86fdeb6f072d136
+      created: 1794969760198
+      modified: 1794969760198
+      sortKey: -1794969760198
+      description: ""
+  - name: Task Management System
+    meta:
+      id: fld_c233af41dd4c40bbbc9e7e1eead7a090
+      created: 1794974703132
+      modified: 1794974703132
+      sortKey: -1794974703132
+      description: ""
+  - name: Employees
+    meta:
+      id: fld_c9bdfe65dbfe454e94180332ca87233e
+      created: 1795658318072
+      modified: 1795658318072
+      sortKey: -1795658318072
+      description: ""
+  - name: travel-journal
+    meta:
+      id: fld_780f310b167b44989c2212b1802ad79e
+      created: 1795664494162
+      modified: 1795665652985
+      sortKey: -1795664494162
+      description: ""
+  - name: healthtracker
+    meta:
+      id: fld_d2e323a61bfc4ed0a6582936b35cdc72
+      created: 1795668551676
+      modified: 1795668551676
+      sortKey: -1795668551676
+      description: ""
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_99d30891da4bdcebc63947a8fc17f076de878684
+    created: 1793865053301
+    modified: 1793865053301
+environments:
+  name: Base Environment
+  meta:
+    id: env_99d30891da4bdcebc63947a8fc17f076de878684
+    created: 1793865053231
+    modified: 1793865053231
+    isPrivate: false
